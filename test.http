@@ -1,0 +1,27 @@
+# USERS
+POST http://localhost:3000/users/create
+content-type: application/json
+
+{
+    "username": "Tester",
+    "password": "123"   
+}
+
+###
+
+
+# AUTH
+POST http://localhost:3000/login
+content-type: application/json
+
+{
+    "username": "Tester",
+    "password": "123"
+}
+
+###
+
+GET http://localhost:3000/user
+
+
+#Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRlc3RlciIsInN1YiI6MSwiaWF0IjoxNjQzNjk3NzAwLCJleHAiOjE2NDM2OTgzMDB9.1dmTh9StGG24g4lUP2VgK8kIVooGmwD36-AXM1tpKM8
