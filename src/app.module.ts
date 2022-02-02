@@ -20,6 +20,9 @@ import { MulterModule } from '@nestjs/platform-express';
       dropSchema: true, // for dev
       synchronize: true // for dev
     }),
+    MulterModule.register({
+      dest: './uploads'
+    }),
     UserModule,
     AuthModule,
     FilesModule],

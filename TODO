@@ -1,3 +1,5 @@
+- FILES (share file)
 - SWAGGER
-- FILES
 - ADAPTER
+
+- Jwt Guard - 500 internal server error

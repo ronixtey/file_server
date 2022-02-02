@@ -1,5 +1,4 @@
-import { Controller, Get, Param, Post, Request, Res, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Param, Post, Request, Res, UnauthorizedException, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/guards/local-auth.guards';
@@ -14,7 +13,7 @@ export class AppController {
   // @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   // @ApiBody({ type: CreateUserDto })
   async login(@Request() req) {
-    return this.authService.login(req.user);
+    return await this.authService.login(req.user);
   }
 
   @Get('user')
@@ -24,5 +23,5 @@ export class AppController {
   // @ApiOkResponse({ description: 'Get profile' })
   getProfile(@Request() req) {
     return req.user;
-  }  
+  }
 }

@@ -5,7 +5,7 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
-// import { Todo } from 'src/todo/todo.entity';
+import LocalFile from 'src/files/files.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -18,6 +18,6 @@ export class User extends BaseEntity {
     @Column()
     password: string;
 
-    // @OneToMany(() => Todo, (todo) => todo.user)
-    // todos: Todo[];
+    @OneToMany(() => LocalFile, (file) => file.user)
+    files: LocalFile[];
 }
