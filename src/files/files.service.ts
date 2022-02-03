@@ -2,7 +2,6 @@ import { Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createReadStream } from 'fs';
 import { join } from 'path';
-import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import LocalFile from './files.entity';
 import { unlink } from 'fs/promises';
@@ -31,8 +30,6 @@ export class FilesService {
 
     getFiles(user: User): Promise<LocalFile[]> {
         return this.fileRepository.find({ user });
-            // where: { user: userId }
-        // });
     }
 
     async downloadFile(id: number, user: User, res): Promise<StreamableFile> {

@@ -1,5 +1,5 @@
 - FILES (share file)
-- SWAGGER
+- SWAGGER (upload file)
 - ADAPTER
 
-- Jwt Guard - 500 internal server error
+- Jwt Guard - 500 internal server error (fix)

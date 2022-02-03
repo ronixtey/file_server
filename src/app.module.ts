@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { FilesModule } from './files/files.module';
 import { MulterModule } from '@nestjs/platform-express';
 
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -25,7 +26,8 @@ import { MulterModule } from '@nestjs/platform-express';
     }),
     UserModule,
     AuthModule,
-    FilesModule],
+    FilesModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
