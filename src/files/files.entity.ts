@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "src/user/user.entitiy";
 
 @Entity()
@@ -21,6 +21,6 @@ export default class LocalFile {
     @Column()
     size: number
 
-    @ManyToOne(() => User, (user) => user.files)
-    user: User
+    @ManyToMany(() => User, (user: User) => user.files)
+    users: User[]
 }

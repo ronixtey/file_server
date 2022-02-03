@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Post, Request, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, Request, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -61,6 +61,18 @@ export class FilesController {
     @Delete(':id')
     async deleteFile(@Param('id') id: number, @Request() req) {
         return await this.filesService.deleteFile(id, req.user);
+    }
+
+    @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
+    @Post('share/:id')
+    async shareFile(@Param('id') id: number, @Request() req, @Body() targetUser) {  
+        return await this.filesService.shareFile(id, req.user, targetUser.userId);
+    }
+
+    @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
+    @Post('unshare/:id')
+    async unshareFile(@Param('id') id: number, @Request() req, @Body() targetUser) {
+        return await this.filesService.unshareFile(id, req.user, targetUser.userId);
     }
 
 }

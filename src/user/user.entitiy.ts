@@ -2,6 +2,8 @@ import {
     BaseEntity,
     Column,
     Entity,
+    JoinTable,
+    ManyToMany,
     OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -18,6 +20,10 @@ export class User extends BaseEntity {
     @Column()
     password: string;
 
-    @OneToMany(() => LocalFile, (file) => file.user)
+    @ManyToMany(() => LocalFile, (file: LocalFile) =>
+        file.users/* , {
+            cascade: true
+    } */)
+    @JoinTable()
     files: LocalFile[];
 }

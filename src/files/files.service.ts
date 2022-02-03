@@ -6,12 +6,14 @@ import { Repository } from 'typeorm';
 import LocalFile from './files.entity';
 import { unlink } from 'fs/promises';
 import { User } from 'src/user/user.entitiy';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class FilesService {
     constructor(
         @InjectRepository(LocalFile)
-        private fileRepository: Repository<LocalFile>
+        private fileRepository: Repository<LocalFile>,
+        private userService: UserService
     ) { }
 
     async saveFile(user: User, file: Express.Multer.File) {
@@ -20,21 +22,24 @@ export class FilesService {
             filename: file.originalname,
             mimetype: file.mimetype,
             // format: file.originalname.slice(file.originalname.lastIndexOf('.')),
-            size: file.size
+            size: file.size,
+            users: [user]
         });
-        newFile.user = user;;
-
         await this.fileRepository.save(newFile);
+
         return newFile;
     }
 
     getFiles(user: User): Promise<LocalFile[]> {
-        return this.fileRepository.find({ user });
+        return this.fileRepository.createQueryBuilder('file')
+            .innerJoinAndSelect('file.users', 'user')
+            .where('user.id = :userId', { userId: user.id })
+            .getMany();
     }
 
     async downloadFile(id: number, user: User, res): Promise<StreamableFile> {
         const file = await this.getFile(id, user);
-``
+        
         const stream = createReadStream(join(process.cwd(), file.path));
         res.set({
             // attachment - download, inline - show
@@ -56,12 +61,36 @@ export class FilesService {
         }
     }
 
-    private async getFile(id: number, user: User): Promise<LocalFile> {
-        const file = await this.fileRepository.findOne({
-            where: { id, user }
-        });
+    async shareFile(id: number, user: User, targetUserId: number): Promise<LocalFile> {
+        const file = await this.getFile(id, user);
+        
+        file.users.push(await this.userService.findOne(targetUserId));
+        this.fileRepository.save(file);
 
-        if (!file) {
+        return file;
+    }
+
+    async unshareFile(id: number, user: User, targetUserId: number): Promise<LocalFile> {
+        const file = await this.getFile(id, user);
+
+        file.users.filter((user) => user.id != targetUserId);
+        this.fileRepository.save(file);
+
+        return file;
+    }
+
+    private async getFile(id: number, user: User): Promise<LocalFile> {
+        /* const file = await this.fileRepository.findOne({
+            where: { id, user }
+        }); */
+        const file = await this.fileRepository.createQueryBuilder('file')
+            .innerJoinAndSelect('file.users', 'user')
+            .where('user.id = :userId', { userId: user.id })
+            .andWhere('file.id = :fileId', { fileId: id })
+            .getOne();
+
+
+        if (!file) {  
             throw new NotFoundException();
         }
 
