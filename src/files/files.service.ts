@@ -1,12 +1,14 @@
-import { Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 import { Repository } from 'typeorm';
-import LocalFile from './files.entity';
 import { unlink } from 'fs/promises';
 import { User } from 'src/user/user.entitiy';
 import { UserService } from 'src/user/user.service';
+import LocalFile from './files.entity';
+import { ShareFileDto } from './share_file.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class FilesService {
@@ -37,18 +39,26 @@ export class FilesService {
             .getMany();
     }
 
-    async downloadFile(id: number, user: User, res): Promise<StreamableFile> {
+    async downloadFile(id: number, user: User, res: Response): Promise<StreamableFile> {
         const file = await this.getFile(id, user);
-        
         const stream = createReadStream(join(process.cwd(), file.path));
+
+        stream.on('error', (err) => {
+            res.sendStatus(404);
+            // res.end(err.message)
+            // throw new NotFoundException(err.message);
+        });
+
         res.set({
             // attachment - download, inline - show
             'Content-Disposition': `attachment; filename="${file.filename} "`,
             'Content-Type': file.mimetype
-        })
-
+        });
+    
+         
         return new StreamableFile(stream);
     }
+
 
     async deleteFile(id: number, user: User) {
         const file = await this.getFile(id, user);
@@ -61,28 +71,27 @@ export class FilesService {
         }
     }
 
-    async shareFile(id: number, user: User, targetUserId: number): Promise<LocalFile> {
-        const file = await this.getFile(id, user);
-        
-        file.users.push(await this.userService.findOne(targetUserId));
-        this.fileRepository.save(file);
+    async acessFIle(id: number, user: User, shareUser: ShareFileDto, access: boolean = true): Promise<LocalFile> {
+        if (user.id == shareUser.userId)
+            throw new BadRequestException();
 
+
+        // находим юзера (тут работает проверка на существование юзера)
+        const targetUser = await this.userService.findOne(shareUser.userId);
+        // находим файл
+        const file = await this.getFile(id, user);
+
+        if (access)   // share
+            file.users.push(targetUser);
+        else  // unshare
+            file.users.filter((user) => user.id != targetUser.id);
+
+        this.fileRepository.save(file);
         return file;
     }
 
-    async unshareFile(id: number, user: User, targetUserId: number): Promise<LocalFile> {
-        const file = await this.getFile(id, user);
-
-        file.users.filter((user) => user.id != targetUserId);
-        this.fileRepository.save(file);
-
-        return file;
-    }
 
     private async getFile(id: number, user: User): Promise<LocalFile> {
-        /* const file = await this.fileRepository.findOne({
-            where: { id, user }
-        }); */
         const file = await this.fileRepository.createQueryBuilder('file')
             .innerJoinAndSelect('file.users', 'user')
             .where('user.id = :userId', { userId: user.id })
@@ -90,9 +99,7 @@ export class FilesService {
             .getOne();
 
 
-        if (!file) {  
-            throw new NotFoundException();
-        }
+        if (!file) throw new NotFoundException();
 
         return file;
     }

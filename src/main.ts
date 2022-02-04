@@ -10,7 +10,6 @@ async function bootstrap() {
     .setDescription('File Server API')
     .setVersion('1.0')
     .addBearerAuth()
-    .addTag('file')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

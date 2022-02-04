@@ -4,8 +4,8 @@ import {
     Entity,
     JoinTable,
     ManyToMany,
-    OneToMany,
     PrimaryGeneratedColumn,
+    Unique,
 } from 'typeorm';
 import LocalFile from 'src/files/files.entity';
 
@@ -14,7 +14,7 @@ export class User extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ nullable: false, unique: true })
     username: string;
 
     @Column()

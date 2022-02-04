@@ -1,5 +1,5 @@
-- FILES (share file only for owners)
-- SWAGGER (upload file)
-- ADAPTER
+- не возвращать password юзера?
+- FILES (share file only by owners)?
+- ADAPTER?
 
-- Jwt Guard - 500 internal server error (fix)
+- Jwt Guard - 500 internal server error (get rid of extra code)

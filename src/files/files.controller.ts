@@ -1,16 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, Request, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, Post, Request, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import LocalFile from './files.entity';
 import { FilesService } from './files.service';
+import LocalFile from './files.entity';
+import { ShareFileDto } from './share_file.dto';
+import { Response } from 'express';
 
 @UseGuards(JwtAuthGuard)
 @Controller('files')
 @ApiTags('files')
-// @ApiBearerAuth()
+@ApiBearerAuth()
 @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-
 export class FilesController {
     constructor(private readonly filesService: FilesService) { }
 
@@ -27,10 +28,13 @@ export class FilesController {
             },
         },
     })
+    @ApiCreatedResponse({ description: 'File uploaded' })
     @UseInterceptors(FileInterceptor('file'))
     uploadFile(@Request() req, @UploadedFile() file: Express.Multer.File): Promise<LocalFile> {
         return this.filesService.saveFile(req.user, file);
     }
+
+
 
     /* @Get(':imgpath')
     getUploadedFile(@Param('imgpath') image, @Res() res) {
@@ -51,28 +55,34 @@ export class FilesController {
     async downloadFile(
         @Param('id') id: number,
         @Request() req,
-        @Res({ passthrough: true }) res
+        @Res({ passthrough: true }) res: Response
     ) {
         return await this.filesService.downloadFile(id, req.user, res);
+        
     }
 
     @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
+    @ApiOkResponse({ description: 'File deleted' })
     // error case
     @Delete(':id')
     async deleteFile(@Param('id') id: number, @Request() req) {
         return await this.filesService.deleteFile(id, req.user);
     }
 
-    @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
     @Post('share/:id')
-    async shareFile(@Param('id') id: number, @Request() req, @Body() targetUser) {  
-        return await this.filesService.shareFile(id, req.user, targetUser.userId);
+    @ApiBody({ type: ShareFileDto })
+    @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
+    @ApiCreatedResponse({ description: 'File shared with user' })
+    async shareFile(@Param('id') id: number, @Request() req, @Body() targetUser: ShareFileDto) {
+        return await this.filesService.acessFIle(id, req.user, targetUser);
     }
 
-    @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
     @Post('unshare/:id')
-    async unshareFile(@Param('id') id: number, @Request() req, @Body() targetUser) {
-        return await this.filesService.unshareFile(id, req.user, targetUser.userId);
+    @ApiBody({ type: ShareFileDto })
+    @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
+    @ApiCreatedResponse({ description: 'File unshared    with user' })
+    async unshareFile(@Param('id') id: number, @Request() req, @Body() targetUser: ShareFileDto) {
+        return await this.filesService.acessFIle(id, req.user, targetUser, false);
     }
 
 }
