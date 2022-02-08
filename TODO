@@ -1,5 +1,9 @@
-- не возвращать password юзера?
 - FILES (share file only by owners)?
 - ADAPTER?
 
 - Jwt Guard - 500 internal server error (get rid of extra code)
+
+
+
+errors:
+- pass string instead userid in /share

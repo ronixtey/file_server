@@ -57,8 +57,8 @@ export class FilesController {
         @Request() req,
         @Res({ passthrough: true }) res: Response
     ) {
-        return await this.filesService.downloadFile(id, req.user, res);
-        
+        return await this.filesService.downloadFile(id, req.user, res)
+        // .carch(error) => { throw error }
     }
 
     @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
@@ -72,7 +72,7 @@ export class FilesController {
     @Post('share/:id')
     @ApiBody({ type: ShareFileDto })
     @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
-    @ApiCreatedResponse({ description: 'File shared with user' })
+    @ApiCreatedResponse({ description: 'File has been shared with user' })
     async shareFile(@Param('id') id: number, @Request() req, @Body() targetUser: ShareFileDto) {
         return await this.filesService.acessFIle(id, req.user, targetUser);
     }
@@ -80,9 +80,8 @@ export class FilesController {
     @Post('unshare/:id')
     @ApiBody({ type: ShareFileDto })
     @ApiNotFoundResponse({ description: 'User does not have file with specified id' })
-    @ApiCreatedResponse({ description: 'File unshared    with user' })
+    @ApiCreatedResponse({ description: 'File has been unshared with user' })
     async unshareFile(@Param('id') id: number, @Request() req, @Body() targetUser: ShareFileDto) {
         return await this.filesService.acessFIle(id, req.user, targetUser, false);
     }
-
 }

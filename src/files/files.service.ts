@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createReadStream } from 'fs';
 import { join } from 'path';
@@ -44,7 +44,7 @@ export class FilesService {
         const stream = createReadStream(join(process.cwd(), file.path));
 
         stream.on('error', (err) => {
-            res.sendStatus(404);
+            res.sendStatus(HttpStatus.GONE);
             // res.end(err.message)
             // throw new NotFoundException(err.message);
         });
